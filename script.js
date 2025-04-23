@@ -1,6 +1,7 @@
 // Mobile menu functionality
 const hamburger = document.querySelector('.hamburger');
 const navLinks = document.querySelector('.nav-links');
+const body = document.body;
 
 // Search functionality
 const searchInput = document.querySelector('.search-input');
@@ -45,14 +46,59 @@ if (searchInput) {
     });
 }
 
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
 hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
     navLinks.classList.toggle('active');
+    body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (navLinks.classList.contains('active') && 
+        !navLinks.contains(e.target) && 
+        !hamburger.contains(e.target)) {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('active');
+        body.style.overflow = '';
+    }
 });
 
 // Close mobile menu when clicking a link
 document.querySelectorAll('.nav-links a').forEach(link => {
     link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
         navLinks.classList.remove('active');
+        body.style.overflow = '';
+    });
+});
+
+// Add active state to current section in navigation
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+    const scrollY = window.pageYOffset;
+    
+    sections.forEach(section => {
+        const sectionHeight = section.offsetHeight;
+        const sectionTop = section.offsetTop - 100;
+        const sectionId = section.getAttribute('id');
+        const navLink = document.querySelector(`.nav-links a[href="#${sectionId}"]`);
+        
+        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight && navLink) {
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            navLink.classList.add('active');
+        }
     });
 });
 
@@ -90,7 +136,7 @@ if (contactForm) {
 }
 
 // Add scroll-based animations for sections
-const sections = document.querySelectorAll('section');
+const sectionElements = document.querySelectorAll('section');
 const options = {
     threshold: 0.3
 };
@@ -104,7 +150,7 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, options);
 
-sections.forEach(section => {
+sectionElements.forEach(section => {
     section.style.opacity = 0;
     section.style.transform = 'translateY(20px)';
     section.style.transition = 'all 0.5s ease-in-out';
